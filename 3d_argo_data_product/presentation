@@ -1,0 +1,43 @@
+##This file contains a 3d projection of argo data from oct-nov 2017 of Lakshadweep islands.The 3dnew.py file represents the argo data in the form of 'x' as latitude, 
+'y' as longitude and the 'z' axis as pressure. The colorbar represents temperature.
+Here, the temperature is made as a linear function of latitude, longitude and pressure.##
+
+#Now examining the code:
+
+#importing libraries
+import pandas as pd
+import numpy as np
+from sklearn import linear_model
+import matplotlib.pyplot as plt
+
+#Reading the CSV file of lakshadweep
+df=pd.read_csv('D:/myi/lakshadweep/lakshadweep_data_oct_nov17.csv')
+
+#Axes representation
+x=np.linspace(9,11,num=120,endpoint=True)#latitude
+y=np.linspace(70.6,73,num=120,endpoint=True)#longitude
+z=np.linspace(2,102,num=120,endpoint=True)#pressure
+
+
+reg=linear_model.LinearRegression()   #applying linear regression model from sklearn package
+reg.fit(df[['latitude','longitude','Sea Pressure in decibar']],df['sea temperature in deg_celcius']) 
+
+X,Y,Z=np.meshgrid(x,y,z)
+val=-0.26606282*X-1.09018624*Y-0.14194047*Z+111.6282071803545   #predicted function of temperature value where the coefficients are availed from 'reg.coef_' and the intercept from 'reg.intercept_'
+def f(X, Y,Z):
+    return -0.26606282*X-1.09018624*Y-0.14194047*Z+111.6282071803545    #creating function from the coefficients and intercept
+
+fig=plt.figure()
+ax=fig.add_subplot(111,projection='3d')
+p=ax.scatter3D(X,Y,Z,c=f(X,Y,Z),cmap="jet")    #colorcode given as the function obtained from linear regression 
+
+ax.set_xlabel('latitude')
+ax.set_ylabel('longitude')
+ax.set_zlabel('pressure')
+plt.colorbar(p,location="left",label="TEMP")
+plt.gca().invert_zaxis()
+plt.show()
+plt.tight_layout()
+ax.view_init(5,15)  #for different viewing angles
+
+
